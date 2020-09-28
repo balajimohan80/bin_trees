@@ -1,7 +1,20 @@
 #include<iostream>
 #include<vector>
+#include<queue>
 #include<stack>
 #include<string>
+
+
+//frequent
+//practice again
+
+//https://leetcode.com/problems/balanced-binary-tree/
+
+/*
+Given a binary tree, determine if it is height-balanced.
+For this problem, a height-balanced binary tree is defined as:
+a binary tree in which the left and right subtrees of every node differ in height by no more than 1.
+*/
 
 class TreeNode {
 public:
@@ -11,25 +24,32 @@ public:
 	TreeNode(int v = 0) :val(v), left(nullptr), right(nullptr) {};
 };
 
-
-//Stack based approach
-std::vector<int> pre_Order(TreeNode* root) {
-	if (!root) return {};
-	std::vector<int> res;
-	std::stack<TreeNode*> st;
-
-	st.push(root);
-	while (!st.empty()) {
-		TreeNode* temp = st.top();
-		st.pop();
-		res.push_back(temp->val);
-		if (temp->right)
-			st.push(temp->right);
-		if (temp->left)
-			st.push(temp->left);
-	}
-	return res;
+template<typename T>
+T max(T& a, T& b) {
+	return a > b ? a : b;
 }
+
+
+bool identify_Balances(TreeNode* root, int& height) {
+	if (root == nullptr) {
+		height = -1;
+		return true;
+	}
+
+	int left_height;
+	int right_height;
+
+	if (identify_Balances(root->left, left_height) &&
+		identify_Balances(root->right, right_height)) {
+		if (std::abs(left_height - right_height) < 2) {
+			height = max(left_height, right_height)+1;
+			return true;
+		}
+	}
+	return false;
+}
+
+
 
 
 TreeNode* create_Tree(const std::vector<std::string>& str) {
@@ -53,7 +73,7 @@ TreeNode* create_Tree(const std::vector<std::string>& str) {
 			q.push(curr->left);
 		if (curr->right)
 			q.push(curr->right);
-
+		
 	}
 	return head;
 }
@@ -105,15 +125,14 @@ std::vector<std::string> parse(std::string& s) {
 	return str;
 }
 
+
 int main() {
-	std::string in = { "3,9,20,null,null,15,7" };
-	std::vector<std::string> v = parse(in);
-	TreeNode* root = create_Tree(v);
-	std::vector<int> ret = pre_Order(root);
-	for (auto& val : ret)
-		std::cout << val << " ";
-	std::cout << "\n";
-	delete_tree(root);
+	//std::string in = "3,9,20,null,null,15,7";
+	std::string in = "1,2,2,3,3,null,null,4,4";
+	std::vector<std::string> tree = parse(in);
+	TreeNode* Root = create_Tree(tree);
+	int height = 0;
+	std::cout << "Balanced: " << identify_Balances(Root, height) << "\n";
+	delete_tree(Root);
 	return 0;
 }
-

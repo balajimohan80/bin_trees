@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Pre_Order.cpp">
+    <ClCompile Include="Balanced_Tree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
