@@ -4,6 +4,17 @@
 #include<string>
 #include<queue>
 
+
+//frequent
+//practice again
+//Impressed
+//https://leetcode.com/problems/binary-tree-right-side-view/
+
+/*
+Given a binary tree, imagine yourself standing on the right side of it, 
+return the values of the nodes you can see ordered from top to bottom.
+*/
+
 class TreeNode {
 public:
 	int val;
@@ -13,23 +24,31 @@ public:
 };
 
 
-//Stack based approach
-std::vector<int> pre_Order(TreeNode* root) {
-	if (!root) return {};
-	std::vector<int> res;
-	std::stack<TreeNode*> st;
+//To get more information, please refer
+//https://www.youtube.com/watch?v=eBdKNoW3VJg&ab_channel=VivekanandKhyade-AlgorithmEveryDay
 
-	st.push(root);
-	while (!st.empty()) {
-		TreeNode* temp = st.top();
-		st.pop();
-		res.push_back(temp->val);
-		if (temp->right)
-			st.push(temp->right);
-		if (temp->left)
-			st.push(temp->left);
+//Stack based approach
+std::vector<int> rightSideView(TreeNode* root) {
+	std::vector<int> left_Side_View;
+	std::vector<int> right_Side_View;
+
+	std::queue<TreeNode*> q;
+	q.push(root);
+
+	while (!q.empty()) {
+		left_Side_View.push_back(q.front()->val);
+		right_Side_View.push_back(q.back()->val);
+		int k = q.size();
+		while (k--) {
+			root = q.front();
+			q.pop();
+			if (root->left)
+				q.push(root->left);
+			if (root->right)
+				q.push(root->right);
+		}
 	}
-	return res;
+	return right_Side_View;
 }
 
 
@@ -107,12 +126,14 @@ std::vector<std::string> parse(std::string& s) {
 }
 
 int main() {
-	std::string in = { "3,9,20,null,null,15,7" };
+	std::string in = { "3,9,20,null,null,15,7,3,9,20 21, null, null, null, 29" };
 	std::vector<std::string> v = parse(in);
 	TreeNode* root = create_Tree(v);
-	std::vector<int> ret = pre_Order(root);
-	for (auto& val : ret)
-		std::cout << val << " ";
+	std::vector<int> ret = rightSideView(root);
+	for (auto& val : ret) {
+			std::cout << val << " ";
+	}
+
 	std::cout << "\n";
 	delete_tree(root);
 	return 0;

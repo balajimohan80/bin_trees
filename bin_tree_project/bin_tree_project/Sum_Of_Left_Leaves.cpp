@@ -4,6 +4,21 @@
 #include<string>
 #include<queue>
 
+
+//https://leetcode.com/problems/sum-of-left-leaves/
+
+/*
+Find the sum of all left leaves in a given binary tree.
+    3
+   / \
+  9  20
+	/  \
+   15   7
+
+There are two left leaves in the binary tree, 
+with values 9 and 15 respectively. Return 24.
+*/
+
 class TreeNode {
 public:
 	int val;
@@ -14,22 +29,38 @@ public:
 
 
 //Stack based approach
-std::vector<int> pre_Order(TreeNode* root) {
-	if (!root) return {};
-	std::vector<int> res;
+int sumOfLeftLeaves(TreeNode* root) {
 	std::stack<TreeNode*> st;
-
-	st.push(root);
-	while (!st.empty()) {
-		TreeNode* temp = st.top();
+	int ret = 0;
+	while (!st.empty() || root) {
+		while (root) {
+			if (root->right) {
+				st.push(root->right);
+			}
+			st.push(root);
+			root = root->left;
+		}
+		root = st.top();
 		st.pop();
-		res.push_back(temp->val);
-		if (temp->right)
-			st.push(temp->right);
-		if (temp->left)
-			st.push(temp->left);
+		if (!st.empty() && st.top() == root->right) {
+			st.pop();
+			st.push(root);
+			root = root->right;
+		}
+		else {
+			if (root->left == nullptr && root->right == nullptr) {
+				if (!st.empty()) {
+					if (root != st.top()->right)
+						ret += root->val;
+				}
+				else {
+					ret += root->val;
+				}
+			}
+			root = nullptr;
+		}
 	}
-	return res;
+	return ret;
 }
 
 
@@ -95,9 +126,9 @@ std::vector<std::string> parse(std::string& s) {
 	while (offset < s.length()) {
 		int new_offset = s.find(',', offset);
 		//This Wrapping condition used when end of the character reached
-		//it returns -1.
+		//find api returns -1 when end of character reached.
 		//Example: "A,B,C", after reached 'C', there are no "," delimeter
-		//In that particular case, it retuns -1
+		//In that particular case, find retuns -1
 		new_offset = (new_offset < 0) ? s.length() : new_offset;
 		std::string node = s.substr(offset, new_offset - offset);
 		str.push_back(node);
@@ -110,10 +141,7 @@ int main() {
 	std::string in = { "3,9,20,null,null,15,7" };
 	std::vector<std::string> v = parse(in);
 	TreeNode* root = create_Tree(v);
-	std::vector<int> ret = pre_Order(root);
-	for (auto& val : ret)
-		std::cout << val << " ";
-	std::cout << "\n";
+	std::cout << "SumofLeftLeaves = " << sumOfLeftLeaves(root) << "\n";
 	delete_tree(root);
 	return 0;
 }

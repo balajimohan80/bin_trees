@@ -4,6 +4,43 @@
 #include<string>
 #include<queue>
 
+//https://leetcode.com/problems/sum-root-to-leaf-numbers/
+
+/*
+Given a binary tree containing digits from 0-9 only,
+each root-to-leaf path could represent a number.
+An example is the root-to-leaf path 1->2->3 which represents the number 123.
+Find the total sum of all root-to-leaf numbers.
+
+Example 1:
+
+Input: [1,2,3]
+	1
+   / \
+  2   3
+Output: 25
+Explanation:
+The root-to-leaf path 1->2 represents the number 12.
+The root-to-leaf path 1->3 represents the number 13.
+Therefore, sum = 12 + 13 = 25.
+
+Example 2:
+
+Input: [4,9,0,5,1]
+	4
+   / \
+  9   0
+ / \
+5   1
+Output: 1026
+Explanation:
+The root-to-leaf path 4->9->5 represents the number 495.
+The root-to-leaf path 4->9->1 represents the number 491.
+The root-to-leaf path 4->0 represents the number 40.
+Therefore, sum = 495 + 491 + 40 = 1026.
+
+*/
+
 class TreeNode {
 public:
 	int val;
@@ -13,23 +50,57 @@ public:
 };
 
 
+#if 0
 //Stack based approach
-std::vector<int> pre_Order(TreeNode* root) {
-	if (!root) return {};
-	std::vector<int> res;
+int sumNumbers(TreeNode* root) {
 	std::stack<TreeNode*> st;
-
-	st.push(root);
-	while (!st.empty()) {
-		TreeNode* temp = st.top();
+	unsigned int res = 0;
+	unsigned int prod = 0;
+	unsigned int left_over = 0;
+	while (!st.empty() || root) {
+		while (root) {
+			if (root) st.push(root);
+			prod = (prod * 10) + root->val;
+			root = root->left;
+		}
+		root = st.top(); 
 		st.pop();
-		res.push_back(temp->val);
-		if (temp->right)
-			st.push(temp->right);
-		if (temp->left)
-			st.push(temp->left);
+		if (root->left == nullptr && root->right == nullptr) {
+			res += prod;
+			prod /= 10;
+		}
+		else if(st.empty()) {
+			left_over = (left_over * 10) + root->val;
+			prod = left_over;
+		}
+	
+		root = root->right;
+
 	}
 	return res;
+}
+#endif
+int sumNumbers(TreeNode* root) {
+	using Data_Type = std::pair< TreeNode*, int>;
+	std::stack<Data_Type> st;
+	int result = 0;
+	int compute_Sum = 0;
+	while (!st.empty() || root) {
+		while (root) {
+			compute_Sum = (compute_Sum * 10) + root->val;
+			st.push(Data_Type { root, compute_Sum });
+			root = root->left;
+		}
+
+		Data_Type& temp = st.top();
+		if (temp.first->left == nullptr && temp.first->right == nullptr) {
+			result += temp.second;
+		}
+		compute_Sum = temp.second;
+		root = temp.first->right;
+		st.pop();
+	}
+	return result;
 }
 
 
@@ -107,13 +178,13 @@ std::vector<std::string> parse(std::string& s) {
 }
 
 int main() {
-	std::string in = { "3,9,20,null,null,15,7" };
+	//std::string in = { "3,9,2,null,null,1,7" };
+	std::string in = { "1,2,3" };
+	//std::string in = { "4,9,0,5,1" };
+	//std::string in = { "6,8,null,7,3,null,8" };
 	std::vector<std::string> v = parse(in);
 	TreeNode* root = create_Tree(v);
-	std::vector<int> ret = pre_Order(root);
-	for (auto& val : ret)
-		std::cout << val << " ";
-	std::cout << "\n";
+	std::cout << "SUM_Val: " << sumNumbers(root) << "\n";
 	delete_tree(root);
 	return 0;
 }

@@ -4,6 +4,33 @@
 #include<string>
 #include<queue>
 
+
+//Frequent
+//practice again
+//https://leetcode.com/problems/binary-tree-level-order-traversal-ii/
+
+//Please refer
+//https://www.youtube.com/watch?v=NjdOhYKjFrU&ab_channel=VivekanandKhyade-AlgorithmEveryDay
+
+/*
+Given a binary tree, return the bottom-up level order traversal of its nodes' values.
+(ie, from left to right, level by level from leaf to root).
+
+For example:
+Given binary tree [3,9,20,null,null,15,7],
+	3
+   / \
+  9  20
+	/  \
+   15   7
+return its bottom-up level order traversal as:
+[
+  [15,7],
+  [9,20],
+  [3]
+]
+*/
+
 class TreeNode {
 public:
 	int val;
@@ -13,25 +40,59 @@ public:
 };
 
 
-//Stack based approach
-std::vector<int> pre_Order(TreeNode* root) {
-	if (!root) return {};
-	std::vector<int> res;
-	std::stack<TreeNode*> st;
+//Level Order Traversal
+//Solution-1
+std::vector<std::vector<int>> printlevel_Order_Sol_1(TreeNode* root) {
+	std::queue<TreeNode*> q;
+	std::vector<std::vector<int>> res;
+	q.push(root);
+	q.push(nullptr);
 
-	st.push(root);
-	while (!st.empty()) {
-		TreeNode* temp = st.top();
-		st.pop();
-		res.push_back(temp->val);
-		if (temp->right)
-			st.push(temp->right);
-		if (temp->left)
-			st.push(temp->left);
+	std::vector<int> v;
+	while (!q.empty()) {
+		root = q.front();
+		q.pop();
+		if (root) {
+			v.push_back(root->val);
+			if (root->left)
+				q.push(root->left);
+			if (root->right)
+				q.push(root->right);
+		}
+		else {
+			//reverse it
+			res.emplace(res.begin(), v);
+			v.clear();
+			if (!q.empty())
+				q.push(nullptr);
+		}
 	}
 	return res;
 }
 
+//Sol-2
+std::vector<std::vector<int>> printlevel_Order_Sol_2(TreeNode* root) {
+	std::queue<TreeNode*> q;
+	std::vector<std::vector<int>> res;
+	q.push(root);
+
+	while (!q.empty()) {
+		std::vector<int> v;
+		size_t size = q.size();
+
+		while (size--) {
+			root = q.front();
+			q.pop();
+			v.push_back(root->val);
+			if (root->left)
+				q.push(root->left);
+			if (root->right)
+				q.push(root->right);
+		}
+		res.emplace(res.begin(), v);
+	}
+	return res;
+}
 
 TreeNode* create_Tree(const std::vector<std::string>& str) {
 	if (!str.size()) return nullptr;
@@ -107,12 +168,17 @@ std::vector<std::string> parse(std::string& s) {
 }
 
 int main() {
-	std::string in = { "3,9,20,null,null,15,7" };
+	std::string in = { "3,9,20,null,null,15,7,3,9,20 21, null, null, null, 29" };
 	std::vector<std::string> v = parse(in);
 	TreeNode* root = create_Tree(v);
-	std::vector<int> ret = pre_Order(root);
-	for (auto& val : ret)
-		std::cout << val << " ";
+	std::vector<std::vector<int>> ret = printlevel_Order_Sol_2(root);
+	for (auto& val : ret) {
+		for (auto& v : val) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+	}
+
 	std::cout << "\n";
 	delete_tree(root);
 	return 0;

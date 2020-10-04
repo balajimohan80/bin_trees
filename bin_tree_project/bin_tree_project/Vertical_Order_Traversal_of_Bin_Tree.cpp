@@ -3,6 +3,12 @@
 #include<stack>
 #include<string>
 #include<queue>
+#include<map>
+
+//frequent
+//Practice again
+//impressed
+
 
 class TreeNode {
 public:
@@ -13,25 +19,54 @@ public:
 };
 
 
-//Stack based approach
-std::vector<int> pre_Order(TreeNode* root) {
+std::vector<std::vector<int>> verticalTraversal(TreeNode* root) {
 	if (!root) return {};
-	std::vector<int> res;
-	std::stack<TreeNode*> st;
+	using Data_t = std::pair< TreeNode*, int>;
+	using Level_Height = int;
+	using Node_Val = int;
+	using Level_Node = std::pair<Level_Height, Node_Val>;
+	std::queue<Data_t> q;
+	std::map<int, std::vector<Level_Node>> u_Map;
 
-	st.push(root);
-	while (!st.empty()) {
-		TreeNode* temp = st.top();
-		st.pop();
-		res.push_back(temp->val);
-		if (temp->right)
-			st.push(temp->right);
-		if (temp->left)
-			st.push(temp->left);
+	q.push(Data_t{ root, 1 });
+	u_Map[1].push_back(Level_Node{1, root->val });
+	Level_Height ct=1;
+	while (!q.empty()) {
+		Data_t temp = q.front();
+		q.pop();
+		ct++;
+		if (temp.first->left) {
+			u_Map[temp.second - 1].push_back(Level_Node{ct, temp.first->left->val });
+			q.push(Data_t{ temp.first->left, temp.second - 1 });
+		}
+
+		if (temp.first->right) {
+			u_Map[temp.second + 1].push_back(Level_Node{ ct,temp.first->right->val });
+			q.push(Data_t{ temp.first->right, temp.second + 1 });
+		}
+		
 	}
-	return res;
-}
 
+	std::vector<std::vector<int>> ret;
+	auto it = u_Map.begin();
+	while (it != u_Map.end()) {
+#if 0
+		std::sort(it->second.begin(), it->second.end(), [](const Level_Node& a, const Level_Node& b)
+			{
+				return a.first == b.first ? a.second < b.second : a.first < b.first;
+			});
+#else
+		std::sort(it->second.begin(), it->second.end());
+#endif
+		std::vector<int> temp;
+		for (auto& val : it->second) {
+			temp.push_back(val.second);
+		}
+		ret.push_back(temp);
+		it++;
+	}
+	return ret;
+}
 
 TreeNode* create_Tree(const std::vector<std::string>& str) {
 	if (!str.size()) return nullptr;
@@ -107,12 +142,19 @@ std::vector<std::string> parse(std::string& s) {
 }
 
 int main() {
-	std::string in = { "3,9,20,null,null,15,7" };
+	//std::string in = { "3,9,20,null,null,15,7" };
+	//std::string in = { "1,2,3,4,5,6,7" };
+	//std::string in = {"0,5,1,9,null,2,null,null,null,null,3,4,8,6,null,null,null,7"};
+	std::string in = { "0,2,1,3,null,null,null,4,5,null,7,6,null,10,8,11,9" };
 	std::vector<std::string> v = parse(in);
 	TreeNode* root = create_Tree(v);
-	std::vector<int> ret = pre_Order(root);
-	for (auto& val : ret)
-		std::cout << val << " ";
+	std::vector<std::vector<int>> res = verticalTraversal(root);
+	for (auto& val : res) {
+		for (auto& v : val) {
+			std::cout << v << " ";
+		}
+		std::cout << "\n";
+	}
 	std::cout << "\n";
 	delete_tree(root);
 	return 0;
