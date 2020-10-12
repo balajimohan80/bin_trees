@@ -3,7 +3,7 @@
 #include<queue>
 #include<stack>
 #include<string>
-
+#include<tuple>
 
 //frequent
 //practice again
@@ -29,7 +29,7 @@ T max(T& a, T& b) {
 	return a > b ? a : b;
 }
 
-
+#if 0
 bool identify_Balances(TreeNode* root, int& height) {
 	if (root == nullptr) {
 		height = -1;
@@ -48,6 +48,49 @@ bool identify_Balances(TreeNode* root, int& height) {
 	}
 	return false;
 }
+#else
+int inline max(int a, int b) {
+	return a > b ? a : b;
+}
+
+bool identify_Balances(TreeNode* root) {
+	using Stack_Data_T = std::tuple<TreeNode*, int, int>;
+	std::stack<Stack_Data_T> st;
+
+	while (!st.empty() || root) {
+		while (root) {
+			if (root->right) {
+				st.emplace(Stack_Data_T{root->right, 0, 0});
+			}
+			st.emplace(Stack_Data_T{ root, 0, 0 });
+			root = root->left;
+		}
+		Stack_Data_T temp = st.top();
+		st.pop();
+		root = std::get<0>(temp);
+		if (!st.empty() && std::get<0>(st.top()) == root->right) {
+			st.pop();
+			st.emplace(temp);
+			root = root->right;
+		}
+		else {
+			if (std::abs(std::get<1>(temp) - std::get<2>(temp)) < 2) {
+				if (!st.empty() && std::get<0>(st.top())->left == root) {
+					std::get<1>(st.top()) = max(std::get<1>(temp), std::get<2>(temp)) + 1;
+				}
+				else if (!st.empty() && std::get<0>(st.top())->right == root) {
+					std::get<2>(st.top()) = max(std::get<1>(temp), std::get<2>(temp)) + 1;
+				}
+			}
+			else {
+				return false;
+			}
+			root = nullptr;
+		}
+	}
+	return true;
+}
+#endif
 
 
 
@@ -131,8 +174,12 @@ int main() {
 	std::string in = "1,2,2,3,3,null,null,4,4";
 	std::vector<std::string> tree = parse(in);
 	TreeNode* Root = create_Tree(tree);
+#if 0
 	int height = 0;
 	std::cout << "Balanced: " << identify_Balances(Root, height) << "\n";
+#else
+	std::cout << "Balanced: " << identify_Balances(Root) << "\n";
+#endif
 	delete_tree(Root);
 	return 0;
 }

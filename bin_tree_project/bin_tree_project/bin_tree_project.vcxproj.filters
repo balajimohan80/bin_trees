@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Diameter_of_Bin_Tree.cpp">
+    <ClCompile Include="flatten-bin-tree-to-linked-list.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
